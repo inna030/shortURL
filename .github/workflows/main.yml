@@ -46,7 +46,15 @@ jobs:
     - name: Create target directory on EC2
       run: |
         ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} 'mkdir -p /home/ec2-user/deploy'
-        
+
+    - name: Install Docker Compose on EC2
+      run: |
+        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+        EOF
+
     - name: Deploy to EC2
       run: |
         rsync -av --exclude='ec2_key.pem' -e "ssh -i ec2_key.pem -o StrictHostKeyChecking=no" ./ ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/deploy
