@@ -49,5 +49,10 @@ jobs:
         
     - name: Deploy to EC2
       run: |
-        scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./* ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/deploy
-        ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} 'bash -s' < ./deploy_script.sh
+          scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./* ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/deploy
+          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+            cd /home/ec2-user/deploy
+            # Add your deployment commands here
+            # For example, if you are running a Docker container:
+            docker-compose up -d
+          EOF
